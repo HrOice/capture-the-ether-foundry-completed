@@ -18,7 +18,9 @@ contract TokenSaleTest is Test {
     // Use the instance of tokenSale and exploitContract
     function testIncrement() public {
         // Put your solution here
+        exploitContract.buy();
 
+        exploitContract.sell(1);
         _checkSolved();
     }
 

