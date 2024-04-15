@@ -38,7 +38,6 @@ contract ExploitContract {
     uint8 public answer;
 
     function Exploit() public returns (uint8) {
-        
         return answer;
     }
 }

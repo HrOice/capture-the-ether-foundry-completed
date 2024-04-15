@@ -23,6 +23,8 @@ contract GuessRandomNumberTest is Test {
         guessRandomNumber = (new GuessRandomNumber){value: 1 ether}();
         exploitContract = new ExploitContract();
         uint8 guess = exploitContract.Exploit();
+        guess = uint8(uint256(vm.load(address(guessRandomNumber), 0)));
+
         guessRandomNumber.guess{value: 1 ether}(guess);
 
         _checkSolved();

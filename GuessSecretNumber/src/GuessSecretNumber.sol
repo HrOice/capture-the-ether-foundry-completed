@@ -30,7 +30,13 @@ contract ExploitContract {
         0xdb81b4d58595fbbbb592d3661a34cdca14d7ab379441400cbfa1b78bc447c365;
 
     function Exploiter() public view returns (uint8) {
-        uint8 n;
+        uint8 n; // the range of uint8 is too small (2**8 = 256), we can foreach 0~type(uint8).max to find it out.
+        for (uint8 i = 0; i <= type(uint8).max; i++) {
+            if (keccak256(abi.encodePacked(i)) == answerHash) {
+                n = i;
+                break;
+            }
+        }
         return n;
     }
 }
